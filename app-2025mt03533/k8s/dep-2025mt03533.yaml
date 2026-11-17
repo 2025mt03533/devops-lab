@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-2025mt03533
+  namespace: app-2025mt03533
+  labels:
+    app: flask-2025mt03533
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+    app: flask-2025mt03533
+  template:
+    metadata:
+      labels:
+        app: flask-2025mt03533
+      spec:
+        containers:
+          - name: flask
+            image: 2025mt03533/devops-lab:v1
+            imagePullPolicy: Always
+            ports:
+              - containerPort: 8000
+            envFrom:
+              - configMapRef:
+                  name: config-2025mt03533
+            env:
+              - name: POD_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 250m
+                memory: 128Mi
