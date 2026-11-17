@@ -9,30 +9,34 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-    app: flask-2025mt03533
+      app: flask-2025mt03533
   template:
     metadata:
       labels:
         app: flask-2025mt03533
-      spec:
-        containers:
-          - name: flask
-            image: 2025mt03533/devops-lab:v1
-            imagePullPolicy: Always
-            ports:
-              - containerPort: 8000
-            envFrom:
-              - configMapRef:
-                  name: config-2025mt03533
-            env:
-              - name: POD_NAME
-                valueFrom:
-                  fieldRef:
-                    fieldPath: metadata.name
-            resources:
-              requests:
-                cpu: 50m
-                memory: 64Mi
-              limits:
-                cpu: 250m
-                memory: 128Mi
+    spec:
+      containers:
+        - name: flask
+          image: 2025mt03533/devops-lab:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: config-2025mt03533
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-svc-2025mt03533.o11y-2025mt03533.svc.cluster.local:4318
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: http/protobuf
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
