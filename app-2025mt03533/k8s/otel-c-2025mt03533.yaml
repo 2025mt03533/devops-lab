@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-c-config-2025mt03533
+  namespace: o11y-2025mt03533
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      batch: {}
+    exporters:
+      prometheus:
+        endpoint: 0.0.0.0:8889
+        resource_to_telemetry_conversion:
+          enabled: true
+      debug:
+        verbosity: basic
+    service:
+      pipelines:
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [prometheus, debug]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-c-2025mt03533
+  namespace: o11y-2025mt03533
+  labels:
+    app: otel-collector-2025mt03533
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector-2025mt03533
+  template:
+    metadata:
+      labels:
+        app: otel-collector-2025mt03533
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.108.0
+          args: ['--config=/conf/config.yaml']
+          ports:
+            - containerPort: 4317
+            - containerPort: 4318
+            - containerPort: 8889
+          volumeMounts:
+            - name: conf
+              mountPath: /conf
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+      volumes:
+        - name: conf
+          configMap:
+            name: otel-c-config-2025mt03533
